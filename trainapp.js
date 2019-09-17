@@ -53,6 +53,30 @@ database.ref().on("child_added", function(childSnapshot) {
  console.log(destination);
  console.log(firstTrainTime);
  console.log(frequency);
-})
+
+ var firstTrainTimeConv = moment(firstTrainTime, "HH:mm").subtract(1, 'years');
+ var currentTime = moment();
+ var timeDifference = moment().diff(moment(firstTrainTimeConv), "minutes");
+ var Remainder = timeDifference % Frequency;
+ var minutesAway = Frequency - Remainder;
+ var nextTrain = moment().add(minutesAway, "minutes");
+
+ var trainName = $("<td>").text(childSnapshot.val().trainName);
+ var destination = $("<td>").text(childSnapshot.val().destination);
+ var firstTrain = $("<td>").text(childSnapshot.val().firstTrainTime);
+ var frequency = $("<td>").text(childSnapshot.val().frequency);
+ var nextArrival = $("<td>").text(nextTrain);
+ var minutesAway = $("<td>").text(minutesAway);
+
+ var newRow = $("<tr>");
+
+ newRow.append(trainName, destination, frequency, nextArrival, minutesAway);
+
+ $("#train-schedule").append(newRow);
+
+}, function (errorObject) {
+    console.log("Errors handled: " + errorObject.code);
+ 
+});
    
 
