@@ -16,67 +16,45 @@ $("#add-train-btn").on("click", function(event){
  event.preventDefault();
     var trainName = $("#train-name-input").val().trim();
     var destination = $("#destination-input").val().trim();
-    var firstTrainTime = moment($("#train-time-input").val().trim(), "HH:mm").format("x");
+    var firstTrainTime = moment($("#train-time-input").val().trim(), "HH:mm").subtract(1, "years").format("x");
     var frequency = $("#frequency-input").val().trim();
     
+    // console.log(firstTrainTime);
+    // return false;
+
     var newTrain = {
         train: trainName,
         dest: destination,
         time: firstTrainTime,
         freq: frequency
-};
+}
 
  database.ref().push(newTrain);
 
- console.log(newTrain.train);
- console.log(netrain.dest);
- console.log(newTrain.time);
- console.log(newTrain.freq);
+//  console.log(newTrain.train);
+//  console.log(netrain.dest);
+//  console.log(newTrain.time);
+//  console.log(newTrain.freq);
 
  $("#train-name-input").val("");
  $("#destination-input").val("");
  $("#train-time-input").val("");
  $("#frequency-input").val("");
-
-});
+})
 
 database.ref().on("child_added", function(childSnapshot) {
  
- console.log(childSnapshot.val());
+//  console.log(childSnapshot.val());
 
  var trainName = childSnapshot.val().train;
  var destination = childSnapshot.val().dest;
  var firstTrainTime = childSnapshot.val().time;
  var frequency = childSnapshot.val().freq;
 
- console.log(trainName);
- console.log(destination);
- console.log(firstTrainTime);
- console.log(frequency);
+ var remainder = moment().diff(moment.unix(firstTrainTime), "minutes")%frequency;
+ var minutes = frequency - remainder;
+ var arrival = moment().add(minutes, "m").format("HH:mm a");
 
- var firstTrainTimeConv = moment(firstTrainTime, "HH:mm").subtract(1, 'years');
- var currentTime = moment();
- var timeDifference = moment().diff(moment(firstTrainTimeConv), "minutes");
- var Remainder = timeDifference % Frequency;
- var minutesAway = Frequency - Remainder;
- var nextTrain = moment().add(minutesAway, "minutes");
+ $("#train-schedule > tbody").append("<tr><td>" + trainName + "</td><td>" + destination + "</td><td>" + frequency + "</td><td>" + arrival + "</td><td>" + minutes + "</td></tr>");
 
- var trainName = $("<td>").text(childSnapshot.val().trainName);
- var destination = $("<td>").text(childSnapshot.val().destination);
- var firstTrain = $("<td>").text(childSnapshot.val().firstTrainTime);
- var frequency = $("<td>").text(childSnapshot.val().frequency);
- var nextArrival = $("<td>").text(nextTrain);
- var minutesAway = $("<td>").text(minutesAway);
-
- var newRow = $("<tr>");
-
- newRow.append(trainName, destination, frequency, nextArrival, minutesAway);
-
- $("#train-schedule").append(newRow);
-
-}, function (errorObject) {
-    console.log("Errors handled: " + errorObject.code);
- 
-});
-   
-
+})
